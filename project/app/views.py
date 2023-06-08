@@ -17,5 +17,5 @@ def home(request):
 
 class HelloWorldView(APIView):
     def get(self, request):
-        data = {"message": "Hello, world!"}
+        data = {"message": "Hello, leha lepeha"}
         return Response(data)
