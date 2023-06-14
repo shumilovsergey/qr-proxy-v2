@@ -9,8 +9,8 @@ class UsersSerializer(serializers.ModelSerializer):
     def validate(self, data):
         existing_record = Users.objects.filter(login=data['login']).first()
         if existing_record:
-            raise serializers.ValidationError('A record with the same Username already exists.')
+            raise serializers.ValidationError("user already exists")
         existing_record = Users.objects.filter(mail=data['mail']).first()
         if existing_record:
-            raise serializers.ValidationError('A record with the same mail already exists.')
+            raise serializers.ValidationError("mail already exists")
         return data

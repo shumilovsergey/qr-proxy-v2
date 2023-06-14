@@ -23,5 +23,17 @@ class RegistrationView(APIView):
         serializer = UsersSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            response = json_resp("0", "0")
+        else:
+            error_code = serializer.errors["non_field_errors"][0]
+            response = json_resp("400", error_code)
+        return Response(response)
+    
+def json_resp(error_code, error_message):
+    response = {
+        "status" : {
+            "error_code": error_code,
+            "error_message": error_message
+        }
+    }
+    return response
