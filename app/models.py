@@ -5,12 +5,12 @@ from django.dispatch import receiver
 from django.urls import reverse
 
 class Users(models.Model):
-    login = models.CharField('Логин пользователя', max_length=56)
-    pas = models.CharField('Пароль пользователя', max_length=56)
-    mail = models.CharField('Почта пользователя', max_length=56)
+    user_name = models.CharField('Логин пользователя', max_length=56)
+    user_pass = models.CharField('Пароль пользователя', max_length=56)
+    user_mail = models.CharField('Почта пользователя', max_length=56)
 
     def __str__(self):
-        return self.login
+        return self.user_name
     
     class Meta:
         verbose_name = 'Пользователь'

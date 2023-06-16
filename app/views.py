@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
+from .models import Users
 
 
 
@@ -12,30 +13,56 @@ from rest_framework.decorators import api_view
 def home(request):
     return render(request, 'app/page_1.html')
 
-
 class UserView(APIView):
     def post(self, request):
+        status = True
+
+        #REQUEST CHECK
         try:
-            user = request.data["login"]
-            pas = request.data["pas"]
-            mail = request.data["email"]
+            user_name = request.data["user_name"]
+            user_pass = request.data["user_pass"]
+            user_mail = request.data["user_mail"]
+        except:
+            status = False
+            error_code = "400"
+            error_message = "bad request. correct form { user_name, user_pass, user_mail }"
 
+        #USER_NAME CHECK
+        if status:
+            try:
+                user = Users.objects.get(user_name=user_name)
+                error_code = "400"
+                error_message = " user_name already exist"
+                status = False
+            except:
+                pass
 
-        response = "1"
-        # serializer = UsersSerializer(data=request.data)
-        # if serializer.is_valid():
-        #     serializer.save()
-        #     response = json_resp("0", "0")
-        # else:
-        #     error_code = serializer.errors["non_field_errors"][0]
-        #     response = json_resp("400", error_code)
-        return Response(response)
-    
-def json_resp(error_code, error_message):
-    response = {
-        "status" : {
-            "error_code": error_code,
-            "error_message": error_message
+        #EMAIL CHECK
+        if status:
+            try:
+                user = Users.objects.get(user_mail=user_mail)
+                error_code = "400"
+                error_message = "user_mail already exist"
+                status = False
+            except:
+                pass
+        
+        #ADD USER
+        if status:
+            Users.objects.create(
+                user_name=user_name,
+                user_pass=user_pass,
+                user_mail=user_mail
+            )
+            error_code = "0"
+            error_message = "none"
+
+        #RESPONSE
+        response = {
+            "status" : {
+                "error_code": error_code,
+                "error_message": error_message
+            }
         }
-    }
-    return response
+        return Response(response)
+  
