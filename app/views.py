@@ -24,15 +24,15 @@ class UserView(APIView):
             user_mail = request.data["user_mail"]
         except:
             status = False
-            error_code = "400"
-            error_message = "bad request. correct form { user_name, user_pass, user_mail }"
+            code = "400"
+            description = "bad request. correct form { user_name, user_pass, user_mail }"
 
         #USER_NAME CHECK
         if status:
             try:
                 user = Users.objects.get(user_name=user_name)
-                error_code = "400"
-                error_message = " user_name already exist"
+                code = "400"
+                description = " user_name already exist"
                 status = False
             except:
                 pass
@@ -41,8 +41,8 @@ class UserView(APIView):
         if status:
             try:
                 user = Users.objects.get(user_mail=user_mail)
-                error_code = "400"
-                error_message = "user_mail already exist"
+                code = "400"
+                description = "user_mail already exist"
                 status = False
             except:
                 pass
@@ -54,15 +54,61 @@ class UserView(APIView):
                 user_pass=user_pass,
                 user_mail=user_mail
             )
-            error_code = "0"
-            error_message = "none"
+            code = "200"
+            description = "none"
 
         #RESPONSE
         response = {
             "status" : {
-                "error_code": error_code,
-                "error_message": error_message
+                "code": code,
+                "description": description
             }
         }
         return Response(response)
   
+class SigninView(APIView):
+    def post(self, request):
+        status = True
+        user_name = "none"
+        user_mail = "none"
+        # REQUEST CHECK
+        try:
+            user_name = request.data["user_name"]
+            user_pass = request.data["user_pass"]
+        except:
+            status = False
+            code = "400"
+            description = "bad request. correct form { user_name, user_pass }"       
+        # USER_NAME CHAECK
+        if status:
+            try:
+                user = Users.objects.get(user_name=user_name)
+            except:
+                status = False
+                code = "400"
+                description = "no user with this user_name"
+        # USER_PASS CHECK
+        if status:
+            if user.user_pass != user_pass:
+                status = False
+                code = "400"
+                description = "wrong password"
+            else:
+                code = "200"
+                description = "none"
+                user_name = user.user_name
+                user_mail = user.user_mail
+        # RESPONSE
+        response = {
+            "status" : {
+                "code" : code,
+                "description": description
+            },
+            "data" : {
+                "user_name" : user_name,
+                "user_mail" : user_mail
+            }
+        }
+        return Response(response)
+
+                
