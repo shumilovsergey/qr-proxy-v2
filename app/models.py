@@ -8,6 +8,7 @@ class Users(models.Model):
     user_name = models.CharField('Логин пользователя', max_length=56)
     user_pass = models.CharField('Пароль пользователя', max_length=56)
     user_mail = models.CharField('Почта пользователя', max_length=56)
+    last_login = models.DateTimeField(verbose_name='last login', blank=True, null=True)
 
     def __str__(self):
         return self.user_name

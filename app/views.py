@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
 from .models import Users
-
+from django.contrib.auth import authenticate, login
 
 
 
@@ -98,6 +98,11 @@ class SigninView(APIView):
                 description = "none"
                 user_name = user.user_name
                 user_mail = user.user_mail
+        # SESSION
+        if status:
+            login(request, user)
+            request.session['is_authorized'] = True
+
         # RESPONSE
         response = {
             "status" : {
