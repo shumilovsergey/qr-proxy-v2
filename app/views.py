@@ -9,111 +9,179 @@ from .models import Users
 from django.contrib.auth import authenticate, login
 
 
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from .forms import RegistrationForm, LoginForm
 
-def home(request):
-    return render(request, 'app/page_1.html')
 
-class UserView(APIView):
-    def post(self, request):
-        status = True
+def register_view(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = RegistrationForm()
+    return render(request, 'register.html', {'form': form})
 
-        #REQUEST CHECK
-        try:
-            user_name = request.data["user_name"]
-            user_pass = request.data["user_pass"]
-            user_mail = request.data["user_mail"]
-        except:
-            status = False
-            code = "400"
-            description = "bad request. correct form { user_name, user_pass, user_mail }"
 
-        #USER_NAME CHECK
-        if status:
-            try:
-                user = Users.objects.get(user_name=user_name)
-                code = "400"
-                description = " user_name already exist"
-                status = False
-            except:
-                pass
+def login_view(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            user = authenticate(request, email=email, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('home')
+    else:
+        form = LoginForm()
+    return render(request, 'login.html', {'form': form})
 
-        #EMAIL CHECK
-        if status:
-            try:
-                user = Users.objects.get(user_mail=user_mail)
-                code = "400"
-                description = "user_mail already exist"
-                status = False
-            except:
-                pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# def home(request):
+#     return render(request, 'app/page_1.html')
+
+# class UserView(APIView):
+#     def post(self, request):
+#         status = True
+
+#         #REQUEST CHECK
+#         try:
+#             user_name = request.data["user_name"]
+#             user_pass = request.data["user_pass"]
+#             user_mail = request.data["user_mail"]
+#         except:
+#             status = False
+#             code = "400"
+#             description = "bad request. correct form { user_name, user_pass, user_mail }"
+
+#         #USER_NAME CHECK
+#         if status:
+#             try:
+#                 user = Users.objects.get(user_name=user_name)
+#                 code = "400"
+#                 description = " user_name already exist"
+#                 status = False
+#             except:
+#                 pass
+
+#         #EMAIL CHECK
+#         if status:
+#             try:
+#                 user = Users.objects.get(user_mail=user_mail)
+#                 code = "400"
+#                 description = "user_mail already exist"
+#                 status = False
+#             except:
+#                 pass
         
-        #ADD USER
-        if status:
-            Users.objects.create(
-                user_name=user_name,
-                user_pass=user_pass,
-                user_mail=user_mail
-            )
-            code = "200"
-            description = "none"
+#         #ADD USER
+#         if status:
+#             Users.objects.create(
+#                 user_name=user_name,
+#                 user_pass=user_pass,
+#                 user_mail=user_mail
+#             )
+#             code = "200"
+#             description = "none"
 
-        #RESPONSE
-        response = {
-            "status" : {
-                "code": code,
-                "description": description
-            }
-        }
-        return Response(response)
+#         #RESPONSE
+#         response = {
+#             "status" : {
+#                 "code": code,
+#                 "description": description
+#             }
+#         }
+#         return Response(response)
   
-class SigninView(APIView):
-    def post(self, request):
-        status = True
-        user_name = "none"
-        user_mail = "none"
-        # REQUEST CHECK
-        try:
-            user_name = request.data["user_name"]
-            user_pass = request.data["user_pass"]
-        except:
-            status = False
-            code = "400"
-            description = "bad request. correct form { user_name, user_pass }"       
-        # USER_NAME CHAECK
-        if status:
-            try:
-                user = Users.objects.get(user_name=user_name)
-            except:
-                status = False
-                code = "400"
-                description = "no user with this user_name"
-        # USER_PASS CHECK
-        if status:
-            if user.user_pass != user_pass:
-                status = False
-                code = "400"
-                description = "wrong password"
-            else:
-                code = "200"
-                description = "none"
-                user_name = user.user_name
-                user_mail = user.user_mail
-        # SESSION
-        if status:
-            login(request, user)
-            request.session['is_authorized'] = True
+# class SigninView(APIView):
+#     def post(self, request):
+#         status = True
+#         user_name = "none"
+#         user_mail = "none"
+#         # REQUEST CHECK
+#         try:
+#             user_name = request.data["user_name"]
+#             user_pass = request.data["user_pass"]
+#         except:
+#             status = False
+#             code = "400"
+#             description = "bad request. correct form { user_name, user_pass }"       
+#         # USER_NAME CHAECK
+#         if status:
+#             try:
+#                 user = Users.objects.get(user_name=user_name)
+#             except:
+#                 status = False
+#                 code = "400"
+#                 description = "no user with this user_name"
+#         # USER_PASS CHECK
+#         if status:
+#             if user.user_pass != user_pass:
+#                 status = False
+#                 code = "400"
+#                 description = "wrong password"
+#             else:
+#                 code = "200"
+#                 description = "none"
+#                 user_name = user.user_name
+#                 user_mail = user.user_mail
+#         # SESSION
+#         if status:
+#             login(request, user)
+#             request.session['is_authorized'] = True
 
-        # RESPONSE
-        response = {
-            "status" : {
-                "code" : code,
-                "description": description
-            },
-            "data" : {
-                "user_name" : user_name,
-                "user_mail" : user_mail
-            }
-        }
-        return Response(response)
+#         # RESPONSE
+#         response = {
+#             "status" : {
+#                 "code" : code,
+#                 "description": description
+#             },
+#             "data" : {
+#                 "user_name" : user_name,
+#                 "user_mail" : user_mail
+#             }
+#         }
+#         return Response(response)
 
                 
