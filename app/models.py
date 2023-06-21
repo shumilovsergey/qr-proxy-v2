@@ -17,3 +17,14 @@ class Users(models.Model):
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
+class Routers(models.Model):
+    user_id = models.CharField('Id пользователя', max_length=256)
+    public_url = models.CharField('публичная ссылка', max_length=256, default="none")
+    privat_url = models.CharField('пользовательская ссылка', max_length=256)
+
+    def __str__(self):
+        return self.user_id  
+
+    class Meta:
+        verbose_name = 'Роут'
+        verbose_name_plural = 'Роуты'
