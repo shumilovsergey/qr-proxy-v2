@@ -59,7 +59,16 @@ class UserView(APIView):
             )
 
         #RESPONSE
-        response = json_response(user_name=user_name, user_mail=user_mail, code=code, description=description)
+        response = {
+            "status" : {
+                "code" : code,
+                "description": description
+            },
+            "data" : {
+                "user_name" : user_name,
+                "user_mail" : user_mail,
+            }
+        }
 
         return Response(response)
   
@@ -104,7 +113,16 @@ class SigninView(APIView):
             request.session['user_id'] = user.id
             print(user.id)
         # RESPONSE
-        response = json_response(user_name=user_name, user_mail=user_mail, code=code, description=description)
+        response = {
+            "status" : {
+                "code" : code,
+                "description": description
+            },
+            "data" : {
+                "user_name" : user_name,
+                "user_mail" : user_mail,
+            }
+        }        
         
         return Response(response)
 
@@ -127,11 +145,18 @@ class LogoutView(APIView):
             request.session['user_id'] = "none"
             description = "logout done"
 
-        response = json_response(user_name=user_name, user_mail=user_mail, code=code, description=description)
+        response = {
+            "status" : {
+                "code" : code,
+                "description": description
+            }
+        }
         return Response(response)
 
 class RoutersView(APIView):
-    def post(self, request):
+    def get(self, request):
+        routers_json=[]
+        id = 0
         user_mail = "none"
         user_name = "none"
         code = "200"
@@ -155,8 +180,6 @@ class RoutersView(APIView):
                 description = "user dont have routers"
                 routers_json = "none"
             else:
-                routers_json=[]
-                id = 0
                 for rout in routers:
                     public_url = rout.public_url
                     privat_url = rout.privat_url
@@ -171,10 +194,21 @@ class RoutersView(APIView):
                     id += 1
                     routers_json.append(string)
 
-        response = json_response(user_name=user_name, user_mail=user_mail, code=code, description=description, routers=routers_json)
+        # RESPONSE
+        response = {
+            "status" : {
+                "code" : code,
+                "description": description
+            },
+            "data" : {
+                "routers" : routers_json
+            }
+        }        
         return Response(response)
 
-    def put(self, request):
+    def post(self, request):
+        routers_json=[]
+        id = 0
         user_mail = "none"
         user_name = "none"
         code = "200"
@@ -214,8 +248,37 @@ class RoutersView(APIView):
                     code = "400"
                     description = "rout.id problems. zvonite serege"
 
-            response = json_response(user_name=user_name, user_mail=user_mail, code=code, description=description)
-            return Response(response)
+            # ROUTERS ARRAY
+            if status:
+                routers = Routers.objects.filter(user_id=user_id)
+                if len(routers) == 0:
+                    description = "user dont have routers"
+                    routers_json = "none"
+                else:
+
+                    for rout in routers:
+                        public_url = rout.public_url
+                        privat_url = rout.privat_url
+                        rout_id = rout.id
+                        string = {
+                            id :{
+                                "public_url" : public_url,
+                                "privat_url" : privat_url,
+                                "rout_id" : rout_id
+                            }
+                        }
+                        id += 1
+                        routers_json.append(string)
+        response = {
+            "status" : {
+                "code" : code,
+                "description": description
+            },
+            "data" : {
+                "routers" : routers_json
+            }
+        }                    
+        return Response(response)
         
     def delete(self, request):
         user_mail = "none"
@@ -249,22 +312,57 @@ class RoutersView(APIView):
             except:
                 status=False
                 code = "400"
-                description = "bad request. no such rout"                
-
-        response = json_response(user_name=user_name, user_mail=user_mail, code=code, description=description)       
-        return Response(response)
-        
-######    
-def json_response(code, description, user_name, user_mail, routers="none"):
+                description = "bad request. no such rout"    
+                            
         response = {
             "status" : {
                 "code" : code,
                 "description": description
-            },
-            "data" : {
-                "user_name" : user_name,
-                "user_mail" : user_mail,
-                "routers"   : routers
             }
-        }
-        return response
+        }      
+        return Response(response)
+
+    def put(self, request):
+        user_mail = "none"
+        user_name = "none"
+        code = "200"
+        description = "none"
+        status=True
+        # DATA CHECK
+        try:
+            rout_id = request.data["rout_id"]
+            privat_url = request.data["privat_url"]
+
+        except:
+            status=False
+            code="400"
+            description="bad request. correct form [ rout_id, privat_url]"
+        # SIGNIN CHECK
+        if status:
+            try:
+                user_id = request.session['user_id']
+                user = Users.objects.get(id=user_id)
+                user_mail = user.user_mail
+                user_name = user.user_name     
+            except:
+                status=False
+                code = "400"
+                description = "user not signin"
+        #
+        if status:
+            try:
+                rout = Routers.objects.get(id=rout_id)
+                rout.privat_url = privat_url
+                rout.save()
+            except:
+                status=False
+                code = "400"
+                description = "bad request. no such rout"    
+                            
+        response = {
+            "status" : {
+                "code" : code,
+                "description": description
+            }
+        }      
+        return Response(response)
