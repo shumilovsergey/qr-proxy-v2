@@ -28,3 +28,6 @@ class Routers(models.Model):
     class Meta:
         verbose_name = 'Роут'
         verbose_name_plural = 'Роуты'
+
+
+DOMAIN_NAME = "https://qrproxy.alplottw.ru"

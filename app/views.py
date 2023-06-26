@@ -9,6 +9,8 @@ from .models import Users
 from .models import Routers
 from django.contrib.auth import authenticate, login
 import json
+from django.shortcuts import redirect
+from .models import DOMAIN_NAME
 
 
 def home(request):
@@ -240,7 +242,7 @@ class RoutersView(APIView):
             for rout in routers:
                 if rout.privat_url == privat_url and rout.public_url == "none":
                     rout_id = rout.id
-                    public_url = f"http://domain.name/routers/{user_id}/{rout_id}/"
+                    public_url = f"{DOMAIN_NAME}/api/redirect/{rout_id}/"
                     rout = Routers.objects.get(id=rout_id)
                     rout.public_url = public_url
                     rout.save()
@@ -366,3 +368,18 @@ class RoutersView(APIView):
             }
         }      
         return Response(response)
+
+class RedirectView(APIView):
+    def get(self, request, rout_id):
+        try:
+            rout = Routers.objects.get(id=rout_id)
+            response=redirect(rout.privat_url)
+        except:
+            code = "400"
+            description = "bad request. no such rout_id"
+            response = {
+                "code" : code,
+                "description": description
+            }
+        return response
+
