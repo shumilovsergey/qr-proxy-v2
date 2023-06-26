@@ -142,3 +142,5 @@ CORS_ALLOWED_HEADERS = [
     'Access-Control-Allow-Origin',
     'Content-Type',
 ]
+
+SESSION_COOKIE_SAMESITE = None
