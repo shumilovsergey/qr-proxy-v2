@@ -134,7 +134,7 @@ REST_FRAMEWORK = {
 
 
 CORS_ALLOWED_ORIGINS = [
-    '*',
+    'qrproxy.alplottw.ru',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
