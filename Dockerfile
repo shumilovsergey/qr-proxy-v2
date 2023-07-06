@@ -25,7 +25,7 @@ ENV PORT=5002
 
 EXPOSE 5002
 # Define volume for database
-# VOLUME django-bd:/app/data
+VOLUME django-bd:/app
 
 # Start server
 CMD python manage.py runserver 0.0.0.0:${PORT}
