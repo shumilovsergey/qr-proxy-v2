@@ -1,10 +1,25 @@
-name: Run commands on server
-  uses: appleboy/ssh-action@v0.1.10
-  with:
-    host: <server-hostname-or-ip>
-    username: <server-username>
-    key: ${{ secrets.SSH_PRIVATE_KEY }}
-    script: |
-      echo "Hello from GitHub Actions!"
-      # Add your custom commands here
-      # You can execute any shell commands on the server
+name: remote ssh command
+on:
+  release:
+    types: [created, published]
+  workflow_dispatch:
+    inputs:
+      comment:
+        description: "Comments"
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: multiple command
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          whoami
+          ls -al
+          
