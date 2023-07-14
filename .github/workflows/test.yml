@@ -12,13 +12,12 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-    - name: multiple command
-      uses: appleboy/ssh-action@v0.1.10
+    - name: Run commands on server
+      uses: appleboy/ssh-action@master
       with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
+        host: 45.131.41.34 
+        username: root
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: ${{ secrets.PORT }}
         script: |
           whoami
           ls -al
